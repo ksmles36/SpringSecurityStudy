@@ -10,8 +10,12 @@ import java.security.Principal;
 public class SampleController {
 
     @GetMapping("/")
-    public String index(Model model) {
-        model.addAttribute("message", "Hello Spring Security");
+    public String index(Model model, Principal principal) {
+        if (principal == null) {
+            model.addAttribute("message", "Hello Spring Security");
+        } else {
+            model.addAttribute("message", "Hello, " + principal.getName());
+        }
         return "index";
     }
 
@@ -24,13 +28,13 @@ public class SampleController {
     //Dashboard 는 로그인 한 사용자만 접근 가능한 핸들러로 가정한다
     @GetMapping("/dashboard")
     public String dashboard(Model model, Principal principal) {
-        model.addAttribute("message", "dashboard");
+        model.addAttribute("message", "Hello " + principal.getName());
         return "dashboard";
     }
 
     @GetMapping("/admin")
-    public String admin(Model model) {
-        model.addAttribute("message", "admin");
+    public String admin(Model model, Principal principal) {
+        model.addAttribute("message", "Hello Admin, " + principal.getName());
         return "admin";
     }
 
