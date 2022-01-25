@@ -1,6 +1,7 @@
 package com.example.springsecuritystudy.account;
 
 import lombok.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.persistence.*;
 
@@ -19,7 +20,8 @@ public class Account {
 
     private String role;
 
-    public void encodePassword() {
-        this.password = "{noop}" + this.password;  //이렇게 스프링시큐리티가 원하는 규칙에 맞게 인코딩 타입을 넣어줘야 됨
+    public void encodePassword(PasswordEncoder passwordEncoder) {
+        //this.password = "{noop}" + this.password;  //이렇게 스프링시큐리티가 원하는 규칙에 맞게 인코딩 타입을 넣어줘야 됨
+        this.password = passwordEncoder.encode(this.password);
     }
 }
