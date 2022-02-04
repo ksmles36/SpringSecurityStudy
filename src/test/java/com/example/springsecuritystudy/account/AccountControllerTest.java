@@ -35,7 +35,8 @@ class AccountControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "ksm", roles = "USER")
+//    @WithMockUser(username = "ksm", roles = "USER")
+    @WithUser  //이런식으로 커스텀 어노테이션을 만들어서 사용할 수도 있음
     public void index_user() throws Exception {
         //mockMvc.perform(get("/").with(user("ksm").roles("USER")))  //이런 유저가 이미 로그인을 한 상태다 라는 것을 가정한것임
         mockMvc.perform(get("/"))
@@ -44,15 +45,20 @@ class AccountControllerTest {
     }
 
     @Test
+//    @WithMockUser(username = "ksm", roles = "USER")
+    @WithUser
     public void admin_user() throws Exception {  // /admin페이지에 일반 USER가 접근하려고 했을 때
-        mockMvc.perform(get("/admin").with(user("ksm").roles("USER")))
+//        mockMvc.perform(get("/admin").with(user("ksm").roles("USER")))
+        mockMvc.perform(get("/admin"))
                 .andDo(print())
                 .andExpect(status().isForbidden());
     }
 
     @Test
+    @WithMockUser(username = "ksm", roles = "ADMIN")
     public void admin_admin() throws Exception {
-        mockMvc.perform(get("/admin").with(user("ksm").roles("ADMIN")))
+//        mockMvc.perform(get("/admin").with(user("ksm").roles("ADMIN")))
+        mockMvc.perform(get("/admin"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
