@@ -28,6 +28,9 @@ class AccountControllerTest {
     @Autowired
     MockMvc mockMvc;
 
+    @Autowired
+    AccountService accountService;
+
     @Test
     @WithAnonymousUser  //이런식으로 어노테이션으로 목 유저를 넣을 수도 있음
     public void index_anonymous() throws Exception {
@@ -67,8 +70,23 @@ class AccountControllerTest {
 
     @Test
     public void login() throws Exception {
-        mockMvc.perform(formLogin().user("ksm").password("123"))
+        String username = "ksm";
+        String password = "123";
+        this.createUser(username, password);
+
+        //password는 레포지토리에 저장될 때 암호화 하고 저장하기 때문에 getPassword()해오면 이미 암호화된 패스워드로 요청이 들어가기 때문에 안됨
+        mockMvc.perform(formLogin().user(username).password(password))
                 .andExpect(authenticated());
+    }
+
+    private Account createUser(String username, String password) {
+        //Account account = Account.of("ksm", "123", "USER");
+        Account account = Account.builder()
+                .username(username)
+                .password(password)
+                .role("USER")
+                .build();
+        return accountService.createNew(account);  //어차피 jpa save()하고 나면 save한 객체를 반환해주니 그걸 바로 return
     }
 
 }
