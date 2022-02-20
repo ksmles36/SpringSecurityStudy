@@ -9,12 +9,14 @@ import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.transaction.annotation.Transactional;
 
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.anonymous;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.authenticated;
+import static org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers.unauthenticated;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -50,8 +52,8 @@ class AccountControllerTest {
     }
 
     @Test
-//    @WithMockUser(username = "ksm", roles = "USER")
-    @WithUser
+    @WithMockUser(username = "ksm", roles = "USER")
+    @Transactional
     public void admin_user() throws Exception {  // /admin페이지에 일반 USER가 접근하려고 했을 때
 //        mockMvc.perform(get("/admin").with(user("ksm").roles("USER")))
         mockMvc.perform(get("/admin"))
@@ -60,7 +62,8 @@ class AccountControllerTest {
     }
 
     @Test
-    @WithMockUser(username = "ksm", roles = "ADMIN")
+    @WithUser
+//    @WithMockUser(username = "ksm", roles = "ADMIN")
     public void admin_admin() throws Exception {
 //        mockMvc.perform(get("/admin").with(user("ksm").roles("ADMIN")))
         mockMvc.perform(get("/admin"))
@@ -69,7 +72,8 @@ class AccountControllerTest {
     }
 
     @Test
-    public void login() throws Exception {
+    @Transactional
+    public void login_success() throws Exception {
         String username = "ksm";
         String password = "123";
         this.createUser(username, password);
@@ -77,6 +81,30 @@ class AccountControllerTest {
         //password는 레포지토리에 저장될 때 암호화 하고 저장하기 때문에 getPassword()해오면 이미 암호화된 패스워드로 요청이 들어가기 때문에 안됨
         mockMvc.perform(formLogin().user(username).password(password))
                 .andExpect(authenticated());
+    }
+
+    @Test
+    @Transactional
+    public void login_success2() throws Exception {
+        String username = "ksm";
+        String password = "123";
+        this.createUser(username, password);
+
+        //password는 레포지토리에 저장될 때 암호화 하고 저장하기 때문에 getPassword()해오면 이미 암호화된 패스워드로 요청이 들어가기 때문에 안됨
+        mockMvc.perform(formLogin().user(username).password(password))
+                .andExpect(authenticated());
+    }
+
+    @Test
+    @Transactional
+    public void login_fail() throws Exception {
+        String username = "ksm";
+        String password = "123";
+        this.createUser(username, password);
+
+        //password는 레포지토리에 저장될 때 암호화 하고 저장하기 때문에 getPassword()해오면 이미 암호화된 패스워드로 요청이 들어가기 때문에 안됨
+        mockMvc.perform(formLogin().user(username).password("12345"))
+                .andExpect(unauthenticated());
     }
 
     private Account createUser(String username, String password) {
